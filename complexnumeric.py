@@ -129,9 +129,26 @@ class ListRepeatSolver(base.BaseSolver):
     def score(self):
         return 0.8 * self.valuesolver.score() * self.lengthsolver.score()
     
+    def impliedlength(self):
+        return RepeatImpliedLengthSolver(self)
+    
     def params(self):
         return {'valuesolver': self.valuesolver,
                 'lengthsolver': self.lengthsolver}
+
+class RepeatImpliedLengthSolver(base.BaseSolver):
+    def __init__(self, solver):
+        self.solver = solver
+        self.cache = {}
+    
+    def generate(self, index):
+        if index == 0:
+            return len(self.solver[0])
+        else:
+            return self[index-1] + len(self.solver[index])
+    
+    def score(self):
+        return 0.9
 
 class RepeatSolver(base.BaseSolver):
     '''Non-sequence version of ListRepeatSolver.
@@ -157,7 +174,9 @@ class RepeatSolver(base.BaseSolver):
         
         try:
             self.solver = ListRepeatSolver(lists)
-            self.validate(len(self.series) - len(current)) # Validate the entries left out
+            
+            if self.solver[len(lists)][:len(current)] != current:
+                raise base.UnsolvableException
         
         except base.UnsolvableException:
             lists.append(current) # Assume that it ends at a list boundary
@@ -179,6 +198,9 @@ class RepeatSolver(base.BaseSolver):
 
     def params(self):
         return self.solver.params()
+    
+    def impliedlength(self):
+        return self.solver.impliedlength()
 
 class LostSolver(base.BaseSolver): # ;)
     minimum_entries = 3

@@ -9,7 +9,7 @@ import cgitb
 cgitb.enable()
 
 import base
-import complexnumeric
+import combinedsolver
 
 print 'Content-Type: text/html; charset=utf-8'
 print
@@ -18,9 +18,10 @@ print
 print '''
 <html>
 <body>
-<h1>Zizzo &beta;</h1>
+<h1>Zizzo &gamma;</h1>
 <p>
-Zizzo on fiksu otus ja ratkoo sarjoja. Tällä hetkellä Zizzo pitää vain numeerisista sarjoista.
+Zizzo on fiksu otus ja ratkoo sarjoja. Tällä hetkellä Zizzo pitää eniten numeerisista sarjoista.
+Myös merkkijonot merkeillä A-Z toimivat jotenkuten.
 Syötä termit välilyönnillä erotettuina ja klikkaa Hähhää!
 </p>
 <form method="GET" action="zizzo.cgi">
@@ -39,10 +40,14 @@ if not form.has_key('sarja'):
 
 sarja = form['sarja'].value.split(' ')
 sarja = [s.strip(' \n,') for s in sarja]
-sarja = [int(s) for s in sarja if s != ""]
+sarja = [s.upper() for s in sarja if s != ""]
+
+if len(sarja) < 3:
+    print '''<h1 style="color:#F00">Zizzoa ei kiinnosta lukea ajatuksiasi! Syötä vähintään kolme termiä.</h1>'''
+    footer()
 
 try:
-    mysolver = complexnumeric.CombinedNumericSolver(sarja)
+    mysolver = combinedsolver.CombinedSolver(sarja)
 except base.UnsolvableException:
     print '''
         <p>Tapahtui harvinainen poikkeus! Fiksu-Zizzo ei osannutkaan ratkaista sarjaasi.</p>
@@ -74,5 +79,6 @@ htmllines(mysolver)
 
 time_used = time.time() - script_start
 
-print "<p>Zizzon älyä kuormitettiin %0.3f sekunnin ajan.</p>" % time_used
+print '''<p style="font-size:x-small">Zizzon älyä kuormitettiin %0.1f sekunnin ajan.
+Todellisuudessa aika riippuu vain palvelimen kuormasta.</p>''' % time_used
 footer()

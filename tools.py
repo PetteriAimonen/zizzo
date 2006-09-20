@@ -32,6 +32,17 @@ def mirrorstring(string):
     l.reverse()
     return ''.join(l)
 
+def commonpart(string1, string2):
+    '''String1 has string2 in its end.
+    Return where the common part starts in string1:
+    'abcdef' and 'defgh' => 3
+    '''
+    for i in range(len(string1)):
+        if string2.startswith(string1[i:]):
+            return i
+    
+    return False
+
 def describe_lines(solver):
     heading = solver.name()
     result = [heading]
@@ -68,6 +79,16 @@ def describe(solver):
     for line in describe_lines(solver):
         print line
 
+def decreasing(series):
+    '''Return true if the series is decreasing. 3,2,1 => True'''
+    if not series[0] > series[-1]:
+        return False
+    
+    for a,b in tupleslices(series, 2):
+        if not a <= b:
+            return False
+    
+    return True
 
 if __name__ == '__main__':
     print "Unit testing"

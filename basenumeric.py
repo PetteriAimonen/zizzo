@@ -46,7 +46,7 @@ class GeometricSolver(base.BaseSolver):
         if len(self.series) == 2 and self.quotient == 2:
             return 0.15 # A little more than aritmetic with difference != 1
         elif len(self.series) == 2:
-            return 0.5
+            return 0.05
         elif self.quotient in [2,3]:
             return 0.8
         else:
@@ -89,6 +89,7 @@ class OffsetGeometricSolver(base.BaseSolver):
         return result
 
 class RecurringSolver(base.BaseSolver):
+    minimum_entries = 3
     def analyze(self):
         # Find the sortest length with which the series is recurring
         # For example 1,2,3,1,2,3,1,2,3 is recurring with both 3 and 6
