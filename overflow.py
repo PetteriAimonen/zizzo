@@ -34,6 +34,13 @@ class OverflowSolver(base.GeneratingSolver, base.WrapperSolver):
             self.generate = self._solver.generate # Direct wrap
             self.name = self._solver.name
             self.params = self._solver.params
+            self.score = self._solver.score
+    
+    def score(self):
+        if self._min == ord('0'):
+            return 0.6 * self._solver.score()
+        else:
+            return 0.8 * self._solver.score()
     
     def generate(self, index):
         value = self._solver.generate(index)

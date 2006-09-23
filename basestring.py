@@ -1,5 +1,7 @@
 import base
 import complexnumeric
+import basenumeric
+import listnumeric
 import tools
 import overflow
 
@@ -20,9 +22,6 @@ class SingleCharSolver(base.BaseSolver):
     
     def score(self):
         return self.solver.score()
-    
-    def impliedlength(self):
-        return self.solver.impliedlength()
     
     def params(self):
         return {'solver': self.solver}
@@ -52,6 +51,36 @@ class SameCharSolver(base.BaseSolver):
     def params(self):
         return {'charsolver': self.charsolver,
                 'lengthsolver': self.lengthsolver}
+
+class CharRepeatSolver(base.BaseSolver):
+    '''A, AAB, AAABBC => [A] [A,B] [A,B,C] and [1] [2,1] [3,2,1]'''
+    def analyze(self):
+        charlistseries = []
+        countseries = []
+        
+        for lst in self.series:
+            blocks = tools.splittoblocks(lst)
+            charlistseries.append([s[0] for s in blocks])
+            countseries.append([len(s) for s in blocks])
+        
+        self.charlistsolver = listnumeric.CharListSolver(charlistseries)
+        self.countsolver = listnumeric.CombinedListSolver(countseries)
+    
+    def generate(self, index):
+        chars = self.charlistsolver[index]
+        counts = self.countsolver[index]
+        result = ""
+        for i in range(len(chars)):
+            result += chars[i] * counts[i]
+        
+        return result
+    
+    def score(self):
+        return self.charlistsolver.score() * self.countsolver.score() * 0.4
+    
+    def params(self):
+        return {'countsolver': self.countsolver,
+                'charlistsolver': self.charlistsolver}
 
 class YSeriesSolver(base.BaseSolver):
     '''Series for invidual chars in successive entries:
@@ -87,6 +116,8 @@ class YSeriesSolver(base.BaseSolver):
         for i in range(len(self.solvers)):
             key = "solver%d" % i
             result[key] = self.solvers[i]
+        
+        return result
 
 class XSeriesSolver(base.BaseSolver):
     '''String with internal sequence that is trimmed.
@@ -123,16 +154,6 @@ class XSeriesSolver(base.BaseSolver):
             lengths.append(len(s))
         
         self.trimsolver = complexnumeric.CombinedNumericSolver(lefttrims)
-        
-        impliedsolver = self.charsolver.impliedlength() # Used just for RepeatSolver
-        if impliedsolver:
-            for i in range(len(self.series)):
-                if len(self.series[i]) != impliedsolver[i]:
-                    break
-            else:
-                self.lengthsolver = impliedsolver # If implied solver matches, we don't even check for others
-                return
-        
         self.lengthsolver = complexnumeric.CombinedNumericSolver(lengths)
 
     def generate(self, index):
@@ -150,7 +171,8 @@ class XSeriesSolver(base.BaseSolver):
                 'lengthsolver': self.lengthsolver}
 
 class BaseStringSolver(base.SelectSolver):
-    _solverclasses = [SingleCharSolver, SameCharSolver, YSeriesSolver, XSeriesSolver]
+    _solverclasses = [SingleCharSolver, SameCharSolver, CharRepeatSolver, 
+                      YSeriesSolver, XSeriesSolver, basenumeric.RecurringSolver]
 
 if __name__ == '__main__':
     print "Unit testing"
@@ -160,6 +182,13 @@ if __name__ == '__main__':
     
     a = BaseStringSolver(['AZ', 'BY', 'CX'])
     assert a.generatelist(2) == ['DW', 'EV']
+    
+    a = CharRepeatSolver(['A', 'AAB', 'AAABBC'])
+    assert a.generatelist(2) == ['AAAABBBCCD', 'AAAAABBBBCCCDDE']
+    
+    a = CharRepeatSolver(['ABC','AABC','AABBC','AABBCC','AAABBCC'])
+    assert a.generatelist(2) == ['AAABBBCC','AAABBBCCC']
+    
     
     print "OK"
 

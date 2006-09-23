@@ -41,6 +41,7 @@ class SplitSolver(base.BaseSolver):
     def analyze(self):
         startseries = []
         endseries = []
+        splitpoints = []
         for s in self.series:
             if len(s) <= 1:
                 raise base.UnsolvableException
@@ -54,11 +55,18 @@ class SplitSolver(base.BaseSolver):
             else:
                 raise base.UnsolvableException # No change detected
             
+            splitpoints.append(i)
             startseries.append(s[:i])
             endseries.append(s[i:])
         
-        self.startsolver = CombinedSolver(startseries)
-        self.endsolver = CombinedSolver(endseries)
+        for i in splitpoints:
+            if i != 1:
+                break
+        else:
+            raise base.UnsolvableException # There's no logic in splitting every string at the first character 
+        
+        self.startsolver = BaseCombinedSolver(startseries)
+        self.endsolver = BaseCombinedSolver(endseries)
     
     def generate(self, index):
         return self.startsolver[index] + self.endsolver[index]
@@ -70,7 +78,17 @@ class SplitSolver(base.BaseSolver):
         return {'startsolver': self.startsolver,
                 'endsolver': self.endsolver}
 
+class Diff1SplitSolver(SplitSolver):
+    '''Detects change in difference'''
+    difference = 1
+    def compare(self, a, b):
+        return ord(b) - ord(a) != self.difference
+
+class Diffm1SplitSolver(Diff1SplitSolver):
+    difference = -1
+
 class AlternatingTypeSolver(base.SelectSolver):
+    '''For AlternatingNumberStringSolver'''
     _solverclasses = [basenumeric.RecurringSolver, complexnumeric.RepeatSolver]
 
 class AlternatingNumberStringSolver(base.BaseSolver):
@@ -108,8 +126,60 @@ class AlternatingNumberStringSolver(base.BaseSolver):
                 'strsolver': self.strsolver,
                 'typesolver': self.typesolver}
 
-class CombinedSolver(base.SelectSolver):
-    _solverclasses = [NumericOnlySolver, StringOnlySolver, SplitSolver, AlternatingNumberStringSolver]
+class FastCombinedSolver(base.SelectSolver):
+    _solverclasses = [NumericOnlySolver, StringOnlySolver, AlternatingNumberStringSolver]
+
+class SplitCombinedSolver(base.SelectSolver):
+    _solverclasses = [SplitSolver, Diff1SplitSolver, Diffm1SplitSolver]
+
+class BaseCombinedSolver(base.WrapperSolver):
+    '''Recursive splitsolving is slow, so don't try it unless nothing else matches well enough'''
+    def __init__(self, series):
+        ok = True
+        try:
+            self._solver = FastCombinedSolver(series)
+        except base.UnsolvableException:
+            ok = False
+        
+        if not ok or self._solver.score() < 0.3:
+            splitsolver = SplitCombinedSolver(series)
+            if not ok or splitsolver.score() > self._solver.score():
+                self._solver = splitsolver
+
+class CombinedMergeSolver(complexnumeric.MergeSolver):
+    solverclass = BaseCombinedSolver
+
+class NonskipCombinedSolver(base.SelectSolver):
+    _solverclasses = [BaseCombinedSolver, CombinedMergeSolver]
+
+class SkipFirstSolver(base.BaseSolver):
+    def analyze(self):
+        for self.skip in range(1, len(self.series) // 2):
+            series = self.series[self.skip:]
+            try:
+                self.solver = NonskipCombinedSolver(series)
+                break
+            except base.UnsolvableException:
+                continue
+        else:
+            raise base.UnsolvableException
+    
+    def generate(self, index):
+        return self.solver[index - self.skip]
+    
+    def score(self):
+        return self.solver.score() * (1.0/float(self.skip + 1))
+    
+    def params(self):
+        return {'skip': self.skip,
+                'solver': self.solver}
+
+class CombinedSolver(base.WrapperSolver):
+    def __init__(self, series):
+        try:
+            self._solver = NonskipCombinedSolver(series)
+        except base.UnsolvableException:
+            self._solver = SkipFirstSolver(series)
 
 if __name__ == '__main__':
     print "Unit testing"
@@ -119,6 +189,9 @@ if __name__ == '__main__':
     
     a = CombinedSolver(['9A','10B','11C'])
     assert a.generatelist(2) == ['12D','13E']
+    
+    a = Diff1SplitSolver(['ABAB', 'ABCABC', 'ABCDABCD'])
+    assert a.generatelist(2) == ['ABCDEABCDE', 'ABCDEFABCDEF']
     
     print "OK"
 

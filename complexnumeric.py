@@ -52,6 +52,7 @@ class MergeSolver(base.BaseSolver):
     1,2,3,4 + 1,2,4,8 => 1,1,2,2,3,4,4,8
     '''
     
+    solverclass = basenumeric.BaseNumericSolver
     minimum_entries = 4
     
     def _analyze(self, mergecount):
@@ -63,7 +64,7 @@ class MergeSolver(base.BaseSolver):
         
         self.solvers = []
         for s in series:
-            solver = basenumeric.BaseNumericSolver(s)
+            solver = self.solverclass(s)
             self.solvers.append(solver)
         
         self.mergecount = mergecount
@@ -94,62 +95,6 @@ class MergeSolver(base.BaseSolver):
         
         return result
 
-class ListRepeatSolver(base.BaseSolver):
-    '''Numeric series, where each value is repeated - how many times is determined by another series - and
-    converted to list, that is appended to previous entry. This is a intermediate stage used by RepeatSolver,
-    but also by some string solvers. RepeatSolver loses the block information, ie. for it 1,2,2,3,3 seems
-    just as probable as 1,2,2,3,3,3
-    
-    1,2,3 repeated by 1,2,3 => [1], [2,2], [3,3,3]
-    '''
-    
-    def analyze(self):
-        values = []
-        lengths = []
-        
-        for lst in self.series:
-            if not isinstance(lst, list):
-                raise base.UnsolvableException
-            
-            for entry in lst:
-                if entry != lst[0]:
-                    raise base.UnsolvableException
-            
-            values.append(lst[0])
-            lengths.append(len(lst))
-        
-        self.valuesolver = basenumeric.BaseNumericSolver(values)
-        self.lengthsolver = basenumeric.BaseNumericSolver(lengths)
-    
-    def generate(self, index):
-        value = self.valuesolver[index]
-        length = self.lengthsolver[index]
-        return [value] * length
-
-    def score(self):
-        return 0.8 * self.valuesolver.score() * self.lengthsolver.score()
-    
-    def impliedlength(self):
-        return RepeatImpliedLengthSolver(self)
-    
-    def params(self):
-        return {'valuesolver': self.valuesolver,
-                'lengthsolver': self.lengthsolver}
-
-class RepeatImpliedLengthSolver(base.BaseSolver):
-    def __init__(self, solver):
-        self.solver = solver
-        self.cache = {}
-    
-    def generate(self, index):
-        if index == 0:
-            return len(self.solver[0])
-        else:
-            return self[index-1] + len(self.solver[index])
-    
-    def score(self):
-        return 0.9
-
 class RepeatSolver(base.BaseSolver):
     '''Non-sequence version of ListRepeatSolver.
     [1], [2,2], [3,3,3] => 1,2,2,3,3,3
@@ -157,6 +102,8 @@ class RepeatSolver(base.BaseSolver):
     minimum_entries = 3
     
     def analyze(self):
+        from listnumeric import RepeatListSolver
+
         lists = []
         current = []
         
@@ -173,7 +120,7 @@ class RepeatSolver(base.BaseSolver):
         self.genindex = 0
         
         try:
-            self.solver = ListRepeatSolver(lists)
+            self.solver = RepeatListSolver(lists)
             
             if self.solver[len(lists)][:len(current)] != current:
                 raise base.UnsolvableException
@@ -181,12 +128,17 @@ class RepeatSolver(base.BaseSolver):
         except base.UnsolvableException:
             lists.append(current) # Assume that it ends at a list boundary
             self.assumption = True # For score calculation
-            self.solver = ListRepeatSolver(lists)
+            self.solver = RepeatListSolver(lists)
     
     def generate(self, index):
+        tries = 0
         while len(self.generated) <= index:
             self.generated += self.solver[self.genindex]
             self.genindex += 1
+            
+            tries += 1
+            if tries > 10:
+                return None
         
         return self.generated[index]
 
@@ -198,9 +150,6 @@ class RepeatSolver(base.BaseSolver):
 
     def params(self):
         return self.solver.params()
-    
-    def impliedlength(self):
-        return self.solver.impliedlength()
 
 class LostSolver(base.BaseSolver): # ;)
     minimum_entries = 3

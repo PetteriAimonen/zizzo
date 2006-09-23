@@ -43,6 +43,25 @@ def commonpart(string1, string2):
     
     return False
 
+def splittoblocks(string):
+    '''Split to blocks of same letter:
+    ABBCCDDD => ['A', 'BB', 'CC', 'DDD]
+    '''
+    result = []
+    
+    while string:
+        char = string[0]
+        block = ""
+        for c in string:
+            if c != char:
+                break
+            block += c
+        
+        result.append(block)
+        string = string[len(block):]
+    
+    return result
+
 def describe_lines(solver):
     heading = solver.name()
     result = [heading]

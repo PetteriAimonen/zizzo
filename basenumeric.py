@@ -30,6 +30,33 @@ class AritmeticSolver(base.BaseSolver):
         return {'first': self.series[0],
                 'difference': self.difference}
 
+class FractionAritmeticSolver(base.BaseSolver):
+    '''Solve aritmetic series with fractional addition.
+    For example 1,1,2,2,3,3 => difference = 1/2
+    '''
+    minimum_entries = 3
+    def analyze(self):
+        for i in range(1, len(self.series)):
+            difference = self.series[i] - self.series[0]
+            if difference != 0:
+                self.difference = difference
+                self.period = i
+                break
+        else:
+            raise base.UnsolvableException
+        
+        self.validate(0)
+    
+    def generate(self, index):
+        return self.series[0] + self.difference * (index // self.period)
+    
+    def score(self):
+        return 0.6
+    
+    def params(self):
+        return {'difference': "%d/%d" % (self.difference, self.period),
+                'first': self.series[0]}
+
 class GeometricSolver(base.BaseSolver):
     minimum_entries = 2
     def analyze(self):
@@ -96,7 +123,7 @@ class RecurringSolver(base.BaseSolver):
         
         for self.length in range(2, len(self.series)):
             try:
-                self.validate(self.length)
+                self.validate(self.length, nocache = True)
             except base.UnsolvableException:
                 continue
             
@@ -109,7 +136,13 @@ class RecurringSolver(base.BaseSolver):
         return self[index - self.length]
     
     def score(self):
-        proof = len(self.series) - self.length # How many entries did we have to check if it is recurring?
+        # How many entries did we have for checking whether it is recurring?
+        for i in range(self.length, len(self.series)):
+            if self.series[i] != self.series[i-1]:
+                proof = i
+                break
+        else:
+            proof = 0
         
         if proof >= self.length:
             return 0.8
@@ -118,13 +151,14 @@ class RecurringSolver(base.BaseSolver):
         elif proof >= 2:
             return 0.4
         else:
-            return 0.1
+            return 0.01
     
     def params(self):
         return {'series': self.series[:self.length]}
 
 class BaseNumericSolver(base.SelectSolver):
-    _solverclasses = [AritmeticSolver, GeometricSolver, OffsetGeometricSolver, RecurringSolver]
+    _solverclasses = [AritmeticSolver, GeometricSolver, OffsetGeometricSolver,
+                      RecurringSolver, FractionAritmeticSolver]
 
 if __name__ == '__main__':
     print "Unit testing"
