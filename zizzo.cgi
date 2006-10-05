@@ -1,4 +1,4 @@
 #!/bin/bash
 
-ulimit -t 3
+ulimit -t 10
 /usr/bin/env python cgi-zizzo.py

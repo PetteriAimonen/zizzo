@@ -27,21 +27,60 @@ def stringpieces(string, size):
     
     return result
 
+def getprefix(string, char = None):
+    '''Returns the length of prefix with the same characters.
+    '0001234' => 3
+    '''
+    if not char:
+        char = string[0]
+    
+    count = 0
+    for c in string:
+        if c != char:
+            break
+        
+        count += 1
+    
+    return count
+
 def mirrorstring(string):
     l = list(string)
     l.reverse()
     return ''.join(l)
 
+def recursivetuple(mylist):
+    '''Convert a list to a tuple, recursively:
+    [[1,2,3], [3,4,5]] => ((1,2,3), (3,4,5))
+    '''
+    result = []
+    
+    for s in mylist:
+        if isinstance(s, list):
+            result.append(recursivetuple(s))
+        else:
+            result.append(s)
+    
+    return tuple(result)
+
 def commonpart(string1, string2):
     '''String1 has string2 in its end.
     Return where the common part starts in string1:
     'abcdef' and 'defgh' => 3
+    
+    However, return False if there isn't a single exact solution:
+    'aaa' and 'aaa' => False
+    'abcd' and 'ghij' => False
     '''
+    result = False
+    
     for i in range(len(string1)):
         if string2.startswith(string1[i:]):
-            return i
+            if not result:
+                result = i
+            else:
+                return False # Found another possible solution
     
-    return False
+    return result
 
 def splittoblocks(string):
     '''Split to blocks of same letter:
@@ -66,7 +105,7 @@ def describe_lines(solver):
     heading = solver.name()
     result = [heading]
     
-    items = solver.params().items()
+    items = solver.params().items() + [('_sequence', solver.series)]
     items.append(('score', "%0.2f" % solver.score()))
     items.sort(lambda a,b: cmp(a[0], b[0])) # Sort by key
     
@@ -93,8 +132,7 @@ def describe_lines(solver):
     return result
 
 def describe(solver):
-    import base
-    
+    '''Show the internal function of the solver as an ascii-based tree diagram.'''
     for line in describe_lines(solver):
         print line
 
@@ -117,6 +155,8 @@ if __name__ == '__main__':
     
     assert stringpieces('ABCDEFG', 2) == ['AB', 'CD', 'EF']
     
+    assert getprefix('000123') == 3
+    assert getprefix('1234', '0') == 0
     assert mirrorstring('ABCD') == 'DCBA'
     
     print "OK"

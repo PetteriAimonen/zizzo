@@ -6,8 +6,8 @@ class SumSolver(base.BaseSolver):
     '''Sum of another solver up to the index.
     1,2,3,4 and start=1 => 1,2,4,7,11
     '''
-    
     minimum_entries = 4
+    
     def analyze(self):
         numseries = []
         
@@ -17,7 +17,10 @@ class SumSolver(base.BaseSolver):
         self.numsolver = basenumeric.BaseNumericSolver(numseries)
     
     def generate(self, index):
-        return self[index - 1] + self.numsolver[index - 1]
+        if index > 0:
+            return self[index - 1] + self.numsolver[index - 1]
+        else:
+            return self[index + 1] - self.numsolver[index + 1]
     
     def params(self):
         return {'first': self.series[0],
@@ -26,34 +29,14 @@ class SumSolver(base.BaseSolver):
     def score(self):
         return self.numsolver.score() * 0.4
 
-class FibonacciSolver(base.BaseSolver):
-    '''The fibonacci series with custom two first values'''
-
-    minimum_entries = 3
-    def analyze(self):
-        self.validate(2)
-    
-    def generate(self, index):
-        return self[index - 2] + self[index - 1]
-    
-    def score(self):
-        if self[0] == 1 and self[1] == 1 and len(self.series) >= 5:
-            return 0.3
-        elif len(self.series) >= 7: # Non-standard fibonacci
-            return 0.1
-        else:
-            return 0.05
-    
-    def params(self):
-        return {'first_two': self.series[:2]}
-
 class MergeSolver(base.BaseSolver):
     '''Interleave two or three other series.
     1,2,3,4 + 1,2,4,8 => 1,1,2,2,3,4,4,8
     '''
     
-    solverclass = basenumeric.BaseNumericSolver
+    solverclass = basenumeric.BaseNumericSolver # This class is used also for CombinedMergeSolver
     minimum_entries = 4
+    can_do_negative = True
     
     def _analyze(self, mergecount):
         series = [list() for i in range(mergecount)]
@@ -100,6 +83,7 @@ class RepeatSolver(base.BaseSolver):
     [1], [2,2], [3,3,3] => 1,2,2,3,3,3
     '''
     minimum_entries = 3
+    can_do_negative = False
     
     def analyze(self):
         from listnumeric import RepeatListSolver
@@ -122,7 +106,7 @@ class RepeatSolver(base.BaseSolver):
         try:
             self.solver = RepeatListSolver(lists)
             
-            if self.solver[len(lists)][:len(current)] != current:
+            if self.solver[len(lists)][:len(current)] != current: # Check the part that was left over
                 raise base.UnsolvableException
         
         except base.UnsolvableException:
@@ -137,7 +121,7 @@ class RepeatSolver(base.BaseSolver):
             self.genindex += 1
             
             tries += 1
-            if tries > 10:
+            if tries > 10: # RepeatSolver is no longer generating anything.. eg. 11111 2222 333 44 5
                 return None
         
         return self.generated[index]
@@ -151,20 +135,13 @@ class RepeatSolver(base.BaseSolver):
     def params(self):
         return self.solver.params()
 
-class LostSolver(base.BaseSolver): # ;)
-    minimum_entries = 3
-    def analyze(self):
-        self.solver = RepeatSolver([4,8,15,16,23,42,4,8,15])
-        self.validate(0)
-    
-    def generate(self, index):
-        return self.solver[index]
-    
-    def score(self):
-        return 0.01
+import recursivenumeric
+import primes
 
 class CombinedNumericSolver(base.SelectSolver):
-    _solverclasses = [basenumeric.BaseNumericSolver, SumSolver, FibonacciSolver, MergeSolver, RepeatSolver, LostSolver]
+    _solverclasses = [basenumeric.BaseNumericSolver, SumSolver, MergeSolver, RepeatSolver,
+                      recursivenumeric.FibonacciSolver, recursivenumeric.RecursiveExponentSolver,
+                      recursivenumeric.FactorialSolver, primes.PrimeSolver]
 
 if __name__ == '__main__':
     print "Unit testing"

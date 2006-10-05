@@ -3,22 +3,22 @@ import complexnumeric
 import basenumeric
 import listnumeric
 import tools
-import overflow
+import alphabet
 
 class SingleCharSolver(base.BaseSolver):
     '''Strings consisting of a single character'''
+    can_do_negative = True
+    
     def analyze(self):
         for s in self.series:
             if len(s) != 1:
                 raise base.UnsolvableException
         
-        numseries = [ord(s[0]) for s in self.series]
-        
-        s = complexnumeric.CombinedNumericSolver(numseries)
-        self.solver = overflow.OverflowSolver(s)
+        numseries = [alphabet.ord(s[0]) for s in self.series]
+        self.solver = complexnumeric.CombinedNumericSolver(numseries)
     
     def generate(self, index):
-        return chr(self.solver[index])
+        return alphabet.chr(self.solver[index])
     
     def score(self):
         return self.solver.score()
@@ -28,6 +28,8 @@ class SingleCharSolver(base.BaseSolver):
 
 class SameCharSolver(base.BaseSolver):
     '''Strings with single character and varying length. A BB CCC DDDD etc.'''
+    can_do_negative = True
+    
     def analyze(self):
         charseries = []
         lengthseries = []
@@ -54,6 +56,8 @@ class SameCharSolver(base.BaseSolver):
 
 class CharRepeatSolver(base.BaseSolver):
     '''A, AAB, AAABBC => [A] [A,B] [A,B,C] and [1] [2,1] [3,2,1]'''
+    can_do_negative = True
+    
     def analyze(self):
         charlistseries = []
         countseries = []
@@ -125,7 +129,11 @@ class XSeriesSolver(base.BaseSolver):
     BCDEFG lefttrim + 1, length + 0
     CDEFGH lefttrim + 1, length + 0
     '''
-    def analyze(self):
+    def get_wholestring(self):
+        '''Algorithm for finding out the whole string from series entries.
+        Focuses on the common part of the individual entries.
+        ['AB', 'BC', 'CD'] => 'ABCD'
+        '''
         wholestring = self.series[0]
         
         for s in self.series[1:]:
@@ -139,6 +147,10 @@ class XSeriesSolver(base.BaseSolver):
                 wholestring = s[:i] + wholestring
                 continue
         
+        return wholestring
+    
+    def analyze(self):
+        wholestring = self.get_wholestring()
         charseries = list(wholestring)
         self.charsolver = SingleCharSolver(charseries)
         
@@ -170,9 +182,18 @@ class XSeriesSolver(base.BaseSolver):
                 'trimsolver': self.trimsolver,
                 'lengthsolver': self.lengthsolver}
 
+class ConcatenatedXSeriesSolver(XSeriesSolver):
+    '''Simpler version of the XSeriesSolver get_wholestring algorithm.
+    Simply concatenates all entries.
+    ['A', 'B', 'C'] => 'ABC'.
+    '''
+    def get_wholestring(self):
+        return ''.join(self.series)
+
 class BaseStringSolver(base.SelectSolver):
     _solverclasses = [SingleCharSolver, SameCharSolver, CharRepeatSolver, 
-                      YSeriesSolver, XSeriesSolver, basenumeric.RecurringSolver]
+                      YSeriesSolver, XSeriesSolver, basenumeric.RecurringSolver,
+                      ConcatenatedXSeriesSolver]
 
 if __name__ == '__main__':
     print "Unit testing"
@@ -186,9 +207,11 @@ if __name__ == '__main__':
     a = CharRepeatSolver(['A', 'AAB', 'AAABBC'])
     assert a.generatelist(2) == ['AAAABBBCCD', 'AAAAABBBBCCCDDE']
     
-    a = CharRepeatSolver(['ABC','AABC','AABBC','AABBCC','AAABBCC'])
-    assert a.generatelist(2) == ['AAABBBCC','AAABBBCCC']
+    a = CharRepeatSolver(['ABC','AABC','AABBC','AABBCC','AAABBCC','AAABBBCC','AAABBBCCC'])
+    assert a.generatelist(2) == ['AAAABBBCCC','AAAABBBBCCC']
     
+    a = ConcatenatedXSeriesSolver(['A', 'BC', 'DEF', 'GHIJ'])
+    assert a.generatelist(2) == ['KLMNO', 'PQRSTU']
     
     print "OK"
 

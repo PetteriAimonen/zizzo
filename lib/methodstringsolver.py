@@ -52,9 +52,6 @@ class EvenAlternateMirrorStringSolver(OddAlternateMirrorStringSolver):
 class SingleSymmetricStringSolver(BaseMethodSolver):
     '''A, ABA, ABCBA'''
     def simplify(self, s):
-        if len(s) % 2 != 1:
-            raise base.UnsolvableException
-        
         start = s[:len(s) // 2 + 1]
         end = tools.mirrorstring(s[len(s) // 2:])
         
@@ -125,7 +122,7 @@ class EvenFirstAlternateAppendStringSolver(OddFirstAlternateAppendStringSolver):
     firstmodulus = 0
 
 class MethodStringSolver(base.SelectSolver):
-    _solverclasses = [MirrorStringSolver, SingleSymmetricStringSolver, EvenFirstAlternateAppendStringSolver,
+    _solverclasses = [MirrorStringSolver, SingleSymmetricStringSolver, DoubleSymmetricStringSolver, EvenFirstAlternateAppendStringSolver,
                       OddFirstAlternateAppendStringSolver, OddAlternateMirrorStringSolver, EvenAlternateMirrorStringSolver]
 
 if __name__ == '__main__':
