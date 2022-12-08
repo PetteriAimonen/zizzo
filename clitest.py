@@ -20,10 +20,6 @@ def printlist(lst, heading = ""):
 
 
 if __name__ == '__main__':
-    heading = "Command line testing utility using Zizzo library version '" + lib.__version__ + "'"
-    print(heading)
-    print('-' * len(heading))
-
     scriptstart = time.time()
 
 

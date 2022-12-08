@@ -24,9 +24,7 @@ print('''
 <h1>Zizzo &epsilon;</h1>
 <p>
 <b>Ei en&auml;&auml; kovin uutta!</b> Zizzon lähdekoodi on 
-julkaistu:<br />
-<a href="http://kapsi.fi/~jpa/stuff/other/zizzo.tgz">Unix-rivinvaihdoilla</a><br />
-<a href="http://kapsi.fi/~jpa/stuff/other/zizzo.zip">Windows-rivinvaihdoilla</a>
+julkaistu: <a href="https://github.com/PetteriAimonen/zizzo">GitHub</a>.
 </p>
 <p>
 Zizzon älykkyys voi vaikuttaa ihmeeltä, mutta loppujen lopuksi <a href="http://kapsi.fi/~jpa/stuff/pix/zizzorelations2.png">logiikka tämän taustalla on hyvin yksinkertainen</a>.
