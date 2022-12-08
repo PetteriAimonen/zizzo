@@ -1,8 +1,8 @@
-import base
-import basenumeric
-import complexnumeric
-import dummysolvers
-import alphabet
+from . import base
+from . import basenumeric
+from . import complexnumeric
+from . import dummysolvers
+from . import alphabet
 
 '''Solvers for series of lists of numbers.
 [1,2,3], [2,3,4], [3,4,5] => AritmeticSolver with difference = 1 and start = [1,2,3]
@@ -51,7 +51,7 @@ class VaryLengthListSolver(base.BaseSolver):
     
     def analyze(self):
         testseries = self.series[:]
-        testseries.sort(lambda a,b: cmp(len(a), len(b))) # Use the longest entry
+        testseries.sort(key = lambda x: len(x)) # Use the longest entry
         
         self.numsolver = complexnumeric.CombinedNumericSolver(testseries[-1])
         
@@ -199,7 +199,7 @@ class CharListSolver(base.BaseSolver):
 
 
 if __name__ == '__main__':
-    print "Unit testing"
+    print("Unit testing")
 
     a = AritmeticListSolver([[1,2,3], [2,3,4], [3,4,5]])
     assert a.generatelist(2) == [[4,5,6], [5,6,7]]
@@ -216,4 +216,4 @@ if __name__ == '__main__':
     a = YListSolver([[5,1,1], [4,1,2], [3,1,3]])
     assert a.generatelist(2) == [[2,1,4], [1,1,5]]
 
-    print "OK"
+    print("OK")

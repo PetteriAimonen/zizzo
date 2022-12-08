@@ -1,4 +1,4 @@
-import base
+from . import base
 
 '''These solvers generate values for an already known series.'''
 

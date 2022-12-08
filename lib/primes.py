@@ -1,5 +1,5 @@
-import base
-import basenumeric
+from . import base
+from . import basenumeric
 import math
 
 class PrimeGenerator(base.GeneratingSolver):
@@ -68,7 +68,7 @@ class PrimeSolver(base.BaseSolver):
         return 0.1 * self.positionsolver.score()
 
 if __name__ == '__main__':
-    print "Unit tests"
+    print("Unit tests")
     
     a = PrimeGenerator()
     assert a[:5] == [2, 3, 5, 7, 11]
@@ -76,4 +76,4 @@ if __name__ == '__main__':
     a = PrimeSolver([2, 3, 5])
     assert a.generatelist(2) == [7, 11]
     
-    print "OK"
+    print("OK")

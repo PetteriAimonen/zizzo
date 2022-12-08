@@ -1,4 +1,4 @@
-import base
+from . import base
 import math
 
 '''Simple recursive numeric solvers, like fibonacci.
@@ -95,7 +95,7 @@ class FactorialSolver(base.BaseSolver):
             return 0.01
 
 if __name__ == '__main__':
-    print "Unit tests"
+    print("Unit tests")
     
     a = FibonacciSolver([1, 1, 2, 3, 5])
     assert a.generatelist(2) == [8, 13]
@@ -106,4 +106,4 @@ if __name__ == '__main__':
     a = FactorialSolver([1, 2, 6])
     assert a.generatelist(2) == [24, 120]
 
-    print "OK"
+    print("OK")

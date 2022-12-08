@@ -1,6 +1,6 @@
-import base
-import tools
-import basestring
+from . import base
+from . import tools
+from . import basestring
 
 class BaseMethodSolver(base.BaseSolver):
     def simplify(self, s):
@@ -126,9 +126,9 @@ class MethodStringSolver(base.SelectSolver):
                       OddFirstAlternateAppendStringSolver, OddAlternateMirrorStringSolver, EvenAlternateMirrorStringSolver]
 
 if __name__ == '__main__':
-    print "Unit testing"
+    print("Unit testing")
     
     a = MethodStringSolver(['A', 'ABA', 'ABCBA'])
     assert a.generatelist(2) == ['ABCDCBA', 'ABCDEDCBA']
     
-    print "OK"
+    print("OK")

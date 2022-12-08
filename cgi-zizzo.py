@@ -10,11 +10,11 @@ cgitb.enable()
 
 import lib
 
-print 'Content-Type: text/html; charset=utf-8'
-print
-print
+print('Content-Type: text/html; charset=utf-8')
+print()
+print()
 
-print '''
+print('''
 <html>
 <head>
 <title>Zizzo</title>
@@ -45,14 +45,14 @@ Näytä <select name="maara">
 <br /><br />
 <input type="submit" value="Hähhää!" />
 </form>
-<hr>'''
+<hr>''')
 
 def footer():
-    print '''</body></html>'''
+    print('''</body></html>''')
     raise SystemExit
 
 form = cgi.FieldStorage()
-if not form.has_key('sarja'):
+if 'sarja' not in form:
     footer()
 
 try:
@@ -63,54 +63,54 @@ except KeyError:
 sarja = lib.alphabet.split(form['sarja'].value.upper())
 
 if len(sarja) < 3:
-    print '''<h1 style="color:#F00">Zizzoa ei kiinnosta lukea ajatuksiasi! Syötä vähintään kolme termiä.</h1>'''
+    print('''<h1 style="color:#F00">Zizzoa ei kiinnosta lukea ajatuksiasi! Syötä vähintään kolme termiä.</h1>''')
     footer()
 
 try:
     mysolver = lib.Solver(sarja)
 except lib.UnsolvableException:
-    print '''
+    print('''
         <p>Tapahtui harvinainen poikkeus! Fiksu-Zizzo ei osannutkaan ratkaista sarjaasi.</p>
-        <h1 style="color:#F00">Taisit huijata ja syöttää jotain puppua!</h1>'''
+        <h1 style="color:#F00">Taisit huijata ja syöttää jotain puppua!</h1>''')
     footer()
 
-print '''<p>Annetut termit: %s<br/>''' % ', '.join(map(str,sarja))
-print '''Seuraavat %d termiä:''' % maara
+print('''<p>Annetut termit: %s<br/>''' % ', '.join(map(str,sarja)))
+print('''Seuraavat %d termiä:''' % maara)
 
 lst = mysolver.generatelist(maara)
 
 if max([len(s) for s in lst]) > 6:
-    print '<ul>'
+    print('<ul>')
     for s in lst:
-        print '''<li>%s</li>''' % s
-    print '</ul>'
+        print('''<li>%s</li>''' % s)
+    print('</ul>')
 else:
-    print ', '.join(lst)
+    print(', '.join(lst))
 
-print '</p>'
+print('</p>')
 
-print '''<h2>Näin Zizzo ratkaisi naurettavan helpon tehtäväsi:</h2>'''
+print('''<h2>Näin Zizzo ratkaisi naurettavan helpon tehtäväsi:</h2>''')
 
 def htmllines(solver):
-    print "<b>" + solver.name() + " (helppous %2.0f%%)" % (solver.score() * 100) + "</b>"
-    print "<ul>"
+    print("<b>" + solver.name() + " (helppous %2.0f%%)" % (solver.score() * 100) + "</b>")
+    print("<ul>")
     
-    items = solver.params().items() + [('_sequence', solver.series)]
-    items.sort(lambda a,b: cmp(a[0], b[0])) # Sort by key
+    items = list(solver.params().items()) + [('_sequence', solver.series)]
+    items.sort(key = lambda x: x[0]) # Sort by key
     
     for key, value in items:
-        print "<li>%s: " % key,
+        print("<li>%s: " % key, end=' ')
         if isinstance(value, lib.base.Solver):
             htmllines(value)
         else:
-            print str(value),
-        print "</li>"
+            print(str(value), end=' ')
+        print("</li>")
     
-    print "</ul>"
+    print("</ul>")
 
 htmllines(mysolver)
 
 time_used = time.time() - script_start
 
-print '''<p style="font-size:x-small">Zizzon älyä kuormitettiin %0.1f sekunnin ajan.</p>''' % time_used
+print('''<p style="font-size:x-small">Zizzon älyä kuormitettiin %0.1f sekunnin ajan.</p>''' % time_used)
 footer()

@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-import base
+from . import base
 
 def tupleslices(list, size):
     '''Generates a list of tuples of a specific size. For example:
@@ -105,9 +105,9 @@ def describe_lines(solver):
     heading = solver.name()
     result = [heading]
     
-    items = solver.params().items() + [('_sequence', solver.series)]
+    items = list(solver.params().items()) + [('_sequence', solver.series)]
     items.append(('score', "%0.2f" % solver.score()))
-    items.sort(lambda a,b: cmp(a[0], b[0])) # Sort by key
+    items.sort(key = lambda x: x[0]) # Sort by key
     
     for i in range(len(items)):
         key, value = items[i]
@@ -134,7 +134,7 @@ def describe_lines(solver):
 def describe(solver):
     '''Show the internal function of the solver as an ascii-based tree diagram.'''
     for line in describe_lines(solver):
-        print line
+        print(line)
 
 def decreasing(series):
     '''Return true if the series is decreasing. 3,2,1 => True'''
@@ -148,10 +148,10 @@ def decreasing(series):
     return True
 
 if __name__ == '__main__':
-    print "Unit testing"
+    print("Unit testing")
     
-    assert tupleslices(range(5), 2) == [(0,1), (1,2), (2,3), (3,4)]
-    assert tupleslices(range(5), 4) == [(0,1,2,3), (1,2,3,4)]
+    assert tupleslices(list(range(5)), 2) == [(0,1), (1,2), (2,3), (3,4)]
+    assert tupleslices(list(range(5)), 4) == [(0,1,2,3), (1,2,3,4)]
     
     assert stringpieces('ABCDEFG', 2) == ['AB', 'CD', 'EF']
     
@@ -159,4 +159,4 @@ if __name__ == '__main__':
     assert getprefix('1234', '0') == 0
     assert mirrorstring('ABCD') == 'DCBA'
     
-    print "OK"
+    print("OK")

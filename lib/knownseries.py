@@ -1,4 +1,4 @@
-import base
+from . import base
 
 # Currently unused.
 # Design decision: it is more interesting to try to find series in known series
@@ -43,9 +43,9 @@ class KnownSeriesSolver(base.BaseSolver):
             return self.score
 
 if __name__ == '__main__':
-    print "Unit testing"
+    print("Unit testing")
     
     a = KnownSeriesSolver(['f', 'g', 'h', 'j'])
     assert a.generatelist(2) == ['k', 'l']
     
-    print "OK"
+    print("OK")

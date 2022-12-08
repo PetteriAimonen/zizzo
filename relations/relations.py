@@ -14,7 +14,7 @@ for line in data:
             cllist.append(cl)
 
 
-print "digraph G {"
+print("digraph G {")
 
 clss = set(cllist)
 cl = None
@@ -37,6 +37,6 @@ for line in data:
         if ccc in line:
             clr.append(ccc)
             #print line
-            print cl, "->", ccc
+            print(cl, "->", ccc)
 
-print "}"
+print("}")

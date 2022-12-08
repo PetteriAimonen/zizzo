@@ -1,4 +1,4 @@
-import base
+from . import base
 import math
 
 '''The simplest numeric series. Most other solvers base on this.'''
@@ -229,7 +229,7 @@ class BaseNumericSolver(base.SelectSolver):
                       RecurringSolver, ExponentSolver]
 
 if __name__ == '__main__':
-    print "Unit testing"
+    print("Unit testing")
 
     a = AritmeticSolver([1,2,3])
     assert a.generatelist(2) == [4,5]
@@ -254,4 +254,4 @@ if __name__ == '__main__':
     a = BaseNumericSolver([2,4,8,16])
     assert a.generatelist(2) == [32,64]
     
-    print "OK"
+    print("OK")

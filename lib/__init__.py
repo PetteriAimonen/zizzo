@@ -9,9 +9,9 @@ print s[:5]
 => ['A', 'B', 'C', 'D', 'E']
 '''
 
-from combinedsolver import CombinedSolver as Solver
-from tools import describe
-from base import UnsolvableException
+from .combinedsolver import CombinedSolver as Solver
+from .tools import describe
+from .base import UnsolvableException
 
 __version__ = 'epsilon'
 

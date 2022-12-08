@@ -9,32 +9,32 @@ def printlist(lst, heading = ""):
     maxlen = max([len(s) for s in lst])
     
     if maxlen >= 6:
-        print heading
+        print(heading)
         
         for s in lst:
-            print "   " + s
+            print("   " + s)
         
-        print ""
+        print("")
     else:
-        print heading + ' '.join(lst)
+        print(heading + ' '.join(lst))
 
 
 if __name__ == '__main__':
     heading = "Command line testing utility using Zizzo library version '" + lib.__version__ + "'"
-    print heading
-    print '-' * len(heading)
+    print(heading)
+    print('-' * len(heading))
 
     scriptstart = time.time()
 
 
     if len(sys.argv) == 1:
-        print '''Usage:
+        print('''Usage:
     For files with format (given) (generate) 1 2 3 4 5 ... on every line:
     %s file.txt
 
     To directly test a series:
     %s 1 2 3 4 5 ...
-    ''' % (sys.argv[0], sys.argv[0])
+    ''' % (sys.argv[0], sys.argv[0]))
         
         raise SystemExit
 
@@ -66,8 +66,8 @@ if __name__ == '__main__':
                 individualtimes.append(time.time() - start)
             
             except lib.base.UnsolvableException:
-                print "Unable to solve the series"
-                print "--------------------------"
+                print("Unable to solve the series")
+                print("--------------------------")
                 errors += 1
                 continue
             
@@ -77,16 +77,16 @@ if __name__ == '__main__':
                 errors += 1
                 printlist(generated, "Unexpected result: ")
                 lib.describe(solver)
-                print "-------------------------"
+                print("-------------------------")
         
         text = "%d series tested, of which %d failed." % (count, errors)
-        print '-' * len(text)
-        print text
-        print ""
+        print('-' * len(text))
+        print(text)
+        print("")
         
-        print "Average time for one series: %0.3f" % (sum(individualtimes) / len(individualtimes))
-        print "Maximum time for one series: %0.3f" % max(individualtimes)
-        print "Total time used: %0.3f" % (time.time() - scriptstart)
+        print("Average time for one series: %0.3f" % (sum(individualtimes) / len(individualtimes)))
+        print("Maximum time for one series: %0.3f" % max(individualtimes))
+        print("Total time used: %0.3f" % (time.time() - scriptstart))
         
         
 
@@ -98,9 +98,9 @@ if __name__ == '__main__':
         solver = lib.Solver(series)
         printlist(solver.generatelist(10), "Next 10 entries: ")
         
-        print ""
+        print("")
         lib.describe(solver)
         
-        print ""
-        print "Time used: %0.3f" % (time.time() - scriptstart)
+        print("")
+        print("Time used: %0.3f" % (time.time() - scriptstart))
 

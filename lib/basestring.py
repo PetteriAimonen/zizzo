@@ -1,9 +1,9 @@
-import base
-import complexnumeric
-import basenumeric
-import listnumeric
-import tools
-import alphabet
+from . import base
+from . import complexnumeric
+from . import basenumeric
+from . import listnumeric
+from . import tools
+from . import alphabet
 
 class SingleCharSolver(base.BaseSolver):
     '''Strings consisting of a single character'''
@@ -196,7 +196,7 @@ class BaseStringSolver(base.SelectSolver):
                       ConcatenatedXSeriesSolver]
 
 if __name__ == '__main__':
-    print "Unit testing"
+    print("Unit testing")
     
     a = BaseStringSolver(['A', 'AB', 'ABC'])
     assert a.generatelist(2) == ['ABCD', 'ABCDE']
@@ -213,5 +213,5 @@ if __name__ == '__main__':
     a = ConcatenatedXSeriesSolver(['A', 'BC', 'DEF', 'GHIJ'])
     assert a.generatelist(2) == ['KLMNO', 'PQRSTU']
     
-    print "OK"
+    print("OK")
 

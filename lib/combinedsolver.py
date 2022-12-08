@@ -1,12 +1,12 @@
-import base
-import tools
-import alphabet
+from . import base
+from . import tools
+from . import alphabet
 
-import basenumeric
-import complexnumeric
-import basestring
-import methodstringsolver
-import recursivenumeric
+from . import basenumeric
+from . import complexnumeric
+from . import basestring
+from . import methodstringsolver
+from . import recursivenumeric
 
 CombinedNumericSolver = complexnumeric.CombinedNumericSolver
 
@@ -247,7 +247,7 @@ class CombinedSolver(base.TresholdSelectSolver):
     _treshold = 0.1
 
 if __name__ == '__main__':
-    print "Unit testing"
+    print("Unit testing")
     
     a = CombinedSolver(['A1', 'B2', 'C3'])
     assert a.generatelist(2) == ['D4', 'E5']
@@ -261,5 +261,5 @@ if __name__ == '__main__':
     a = BaseCombinedSolver(['SIIKA', 'SIIIKA', 'SIIIIKA'])
     assert a.generatelist(2) == ['SIIIIIKA', 'SIIIIIIKA']
     
-    print "OK"
+    print("OK")
 

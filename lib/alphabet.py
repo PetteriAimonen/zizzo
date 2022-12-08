@@ -4,7 +4,7 @@ def ord(char):
     try:
         return alphabet.index(char)
     except ValueError:
-        raise ValueError, "Only characters 0-9 and A-Z are allowed."
+        raise ValueError("Only characters 0-9 and A-Z are allowed.")
 
 def chr(value):
     value = value % len(alphabet)
@@ -30,8 +30,8 @@ def split(string):
     return result
 
 if __name__ == "__main__":
-    print "Unit testing"
+    print("Unit testing")
     
     assert split('1,2 3-4') == ['1', '2', '3', '4']
     
-    print "OK"
+    print("OK")
